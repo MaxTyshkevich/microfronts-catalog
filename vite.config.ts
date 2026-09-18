@@ -14,9 +14,9 @@ export default defineConfig(({ command, mode }) => {
   if (isProduction) {
     if (
       !env.VITE_PUBLIC_BASE?.startsWith("https://") ||
-      !env.VITE_API_BASE_URL?.startsWith("https://")
+      (apiBaseUrl !== "/api" && !apiBaseUrl.startsWith("https://"))
     ) {
-      throw new Error("Production requires HTTPS VITE_PUBLIC_BASE and VITE_API_BASE_URL");
+      throw new Error("Production requires HTTPS VITE_PUBLIC_BASE and /api or HTTPS VITE_API_BASE_URL");
     }
   }
   const runtimeConfig: Plugin = {

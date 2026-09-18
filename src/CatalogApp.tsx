@@ -1,47 +1,85 @@
-import { useEffect, useState } from "react";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { productsKey, cartKey as sharedCartKey } from "@microfronts/contracts";
+import { useState } from "react";
 import { Badge, Button } from "@microfronts/ui";
-import { formatMoney, type Product, type RemoteProps } from "@microfronts/platform";
+import { formatMoney, request } from "./api";
+import type { CatalogProps } from "./remote-props";
+import type { Product } from "./models";
 import "./styles.css";
 
-export default function CatalogApp({ platform }: RemoteProps) {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+export default function CatalogApp(props: CatalogProps) {
+  const [localClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+      }),
+  );
+  return (
+    <QueryClientProvider client={props.queryClient ?? localClient}>
+      <CatalogContent {...props} />
+    </QueryClientProvider>
+  );
+}
+function CatalogContent({
+  apiBaseUrl,
+  cartKey,
+  sessionScope,
+  onUnauthorized,
+  onCartChanged,
+  onNavigate,
+}: CatalogProps) {
+  const client = useQueryClient();
+  const scope = sessionScope ?? "guest:" + cartKey;
   const [notice, setNotice] = useState("");
-  const [pending, setPending] = useState<string | null>(null);
-  const [attempt, setAttempt] = useState(0);
-  useEffect(() => {
-    const controller = new AbortController();
-    setLoading(true);
-    setError("");
-    platform
-      .request<Product[]>("/products", { signal: controller.signal })
-      .then(setProducts)
-      .catch((error: Error) => {
-        if (!controller.signal.aborted) setError(error.message);
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
-      });
-    return () => controller.abort();
-  }, [platform, attempt]);
-
-  async function add(product: Product) {
-    setPending(product.id);
-    setError("");
-    setNotice("");
-    try {
-      await platform.request("/cart/items", {
-        method: "POST",
-        body: JSON.stringify({ productId: product.id, quantity: 1 }),
-      });
-      platform.events.cartChanged();
+  const productsQuery = useQuery({
+    queryKey: productsKey(apiBaseUrl),
+    queryFn: ({ signal }) =>
+      request<Product[]>(
+        apiBaseUrl,
+        cartKey,
+        "/products",
+        { signal },
+        sessionScope,
+        onUnauthorized,
+      ),
+    staleTime: 60000,
+    retry: false,
+  });
+  const mutation = useMutation({
+    mutationKey: ["cart-write", apiBaseUrl, scope],
+    scope: { id: "cart:" + scope },
+    retry: false,
+    mutationFn: (product: Product) =>
+      request(
+        apiBaseUrl,
+        cartKey,
+        "/cart/items",
+        {
+          method: "POST",
+          body: JSON.stringify({ productId: product.id, quantity: 1 }),
+        },
+        sessionScope,
+        onUnauthorized,
+      ),
+    onSuccess: async (_, product) => {
+      await client.invalidateQueries({ queryKey: sharedCartKey(apiBaseUrl, scope) });
+      onCartChanged?.();
       setNotice("Добавлено: " + product.title);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Не удалось добавить товар");
-    } finally {
-      setPending(null);
-    }
+    },
+  });
+  const products = productsQuery.data ?? [];
+  const loading = productsQuery.isPending;
+  const error = productsQuery.error?.message ?? mutation.error?.message;
+  const pending = mutation.isPending ? mutation.variables?.id : null;
+  function add(product: Product) {
+    setNotice("");
+    mutation.mutate(product);
   }
   return (
     <section className="catalog" aria-label="Каталог">
@@ -52,10 +90,13 @@ export default function CatalogApp({ platform }: RemoteProps) {
       {loading && <p role="status">Загружаем каталог… Первый запуск API может занять минуту.</p>}
       {error && (
         <div role="alert">
-          {error} <Button onClick={() => setAttempt((value) => value + 1)}>Обновить каталог</Button>
+          {error} <Button onClick={() => void productsQuery.refetch()}>Обновить каталог</Button>
         </div>
       )}
       <p role="status">{notice}</p>
+      {onNavigate && notice && (
+        <Button onClick={() => onNavigate("cart")}>Перейти в корзину</Button>
+      )}
       <div className="product-list">
         {products.map((product) => (
           <article className="product-card" key={product.id}>
