@@ -11,7 +11,8 @@ import { Badge, Button } from "@microfronts/ui";
 import { formatMoney, request } from "./api";
 import type { CatalogProps } from "./remote-props";
 import type { Product } from "./models";
-import "./styles.css";
+import "./app/styles/tailwind.css";
+import "./app/styles/remote.css";
 
 export default function CatalogApp(props: CatalogProps) {
   const [localClient] = useState(
@@ -82,7 +83,7 @@ function CatalogContent({
     mutation.mutate(product);
   }
   return (
-    <section className="catalog" aria-label="Каталог">
+    <section className="catalog catalog:grid catalog:gap-[18px]" aria-label="Каталог">
       <div className="catalog-title">
         <Badge>catalog</Badge>
         <p>Товары из API. Привет мир!</p>

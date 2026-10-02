@@ -1,9 +1,10 @@
 import { QueryClient } from "@tanstack/react-query";
+import "./app/styles/page-reset.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { getCartKey } from "./cart-key";
 import CatalogApp from "./CatalogApp";
-import "./standalone.css";
+import "./app/styles/standalone.css";
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30000 }, mutations: { retry: false } } });
 const root = createRoot(document.getElementById("root")!);
