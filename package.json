@@ -9,7 +9,8 @@
     "build": "vite build",
     "typecheck": "tsc -p tsconfig.json",
     "preview": "vite preview --host 0.0.0.0",
-    "build:local": "vite build --mode integration"
+    "build:local": "vite build --mode integration",
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "@microfronts/contracts": "file:vendor/microfronts-contracts-0.1.0.tgz",

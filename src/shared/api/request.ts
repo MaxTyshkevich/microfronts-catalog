@@ -1,10 +1,12 @@
-// Local HTTP helper. No shared singleton, event bus, or dependency on shell.
-export async function request<T>(
-  apiBaseUrl: string,
-  cartKey: string,
-  path: string,
-  options: RequestInit = {}, sessionScope?: string, onUnauthorized?: () => void,
-): Promise<T> {
+export interface RequestContext {
+  apiBaseUrl: string;
+  cartKey: string;
+  sessionScope?: string;
+  onUnauthorized?: () => void;
+}
+
+export async function request<T>(context: RequestContext, path: string, options: RequestInit = {}): Promise<T> {
+  const { apiBaseUrl, cartKey, sessionScope, onUnauthorized } = context;
   const controller = new AbortController();
   const abort = () => controller.abort();
   options.signal?.addEventListener("abort", abort, { once: true });
@@ -22,15 +24,11 @@ export async function request<T>(
     if (!response.ok) {
       if (response.status === 401 || response.status === 410) onUnauthorized?.();
       const body = await response.json().catch(() => null);
-      throw new Error(typeof body?.message === "string" ? body.message : `API: HTTP ${response.status}`);
+      throw new Error(typeof body?.message === "string" ? body.message : "API: HTTP " + response.status);
     }
     return await response.json() as T;
   } finally {
     clearTimeout(timer);
     options.signal?.removeEventListener("abort", abort);
   }
-}
-
-export function formatMoney(minor: number, currency = "USD") {
-  return new Intl.NumberFormat("ru-RU", { style: "currency", currency }).format(minor / 100);
 }
