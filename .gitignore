@@ -8,3 +8,5 @@ dist
 .env.*
 !.env.example
 @mf-types/
+test-results/
+playwright-report/

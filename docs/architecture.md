@@ -5,14 +5,18 @@
 Catalog показывает товары и позволяет добавлять их в корзину. Работает standalone и как catalog/CatalogApp внутри Shell.
 
 - src/main.tsx — тонкая standalone-точка входа, вызывающая src/app/entrypoint/standalone.tsx.
-- src/CatalogApp.tsx — публичный модуль Module Federation: QueryClientProvider и страница каталога.
+- src/CatalogApp.tsx — публичный модуль Module Federation: QueryClientProvider и внутренние маршруты.
 - src/app — standalone bootstrap, провайдер QueryClient, гостевой ключ и общие стили.
 - src/pages/catalog — композиция экрана, карточка товара, локальное сообщение и стили страницы.
+- src/pages/product — полное описание товара, рейтинг, добавление в корзину и возврат к фильтру.
+- src/entities/category — получение категорий; выбор категории остаётся логикой страницы списка.
 - src/features/add-to-cart — запрос POST /cart/items, мутация, инвалидация корзины и кнопка.
 - src/entities/product — тип Product, GET /products и параметры useQuery.
 - src/shared/api — HTTP-клиент без бизнес-запросов; src/shared/lib — форматирование денег.
 
-В host используется переданный QueryClient. Ключи запросов поставляются contracts; после добавления товара инвалидируется ключ корзины текущего контекста. Поддерживается callback onCartChanged для совместимости. Remote не управляет router Shell: навигация запрашивается callback.
+В host используется переданный QueryClient. Базовый ключ списка и ключ корзины поставляются contracts; фильтр расширяет ключ списка объектом `{ category }`, товар использует отдельный ключ `["product", apiBaseUrl, id]`, категории — `["categories", apiBaseUrl]`. После добавления инвалидируется корзина текущего контекста. Поддерживается callback onCartChanged. Переходы внутри каталога используют общий React Router, переход в корзину — callback onNavigate.
+
+`app/routes/catalog-routes.tsx` содержит две страницы: index со списком и `products/:productId` с описанием; неизвестный подпуть показывает локальную страницу 404. Категория — query-параметр списка, отдельной страницы категории нет. В host Shell владеет BrowserRouter и маршрутом `/catalog/*`; обе сборки разделяют singleton `react-router` 7.18.4. Standalone создаёт BrowserRouter и монтирует то же дерево по `/catalog/*`, `/` перенаправляет в каталог. Прямые ссылки обслуживаются SPA fallback для `/catalog` и `/catalog/*`.
 Standalone работает без Shell; без sessionScope HTTP helper не отправляет cookies. Ошибки 401/410 передаются через onUnauthorized, когда callback задан. createRoot вызывается только standalone-точкой входа.
 
 ## FSD
@@ -60,7 +64,7 @@ Host может передать общий QueryClient; standalone создаё
 React 19, TypeScript, Vite и Module Federation. Серверное состояние управляется TanStack Query.
 UI и типы интеграции поставляются архивами @microfronts/ui и @microfronts/contracts в vendor; архивы и package-lock.json хранятся в Git. Типы CatalogProps используются напрямую из contracts. Изменения контракта требуют согласованного обновления потребителей.
 
-Связь host и remote: props apiBaseUrl, cartKey, queryClient, sessionScope и callbacks onUnauthorized/onNavigate. Shell владеет маршрутизацией и общим QueryClient, remote владеют своей бизнес-логикой и запросами. Исходники соседних приложений не импортируются. Общий event bus и пакет platform приложениями не используются.
+Связь host и remote: прежние props apiBaseUrl, cartKey, queryClient, sessionScope и callbacks onUnauthorized/onNavigate, а также общий контекст singleton React Router. Shell владеет верхними маршрутами и общим QueryClient, catalog — внутренними маршрутами и запросами. Исходники соседних приложений не импортируются. Backend сначала выпускается с API категорий и товара по ID, затем Shell и catalog обновляются согласованно. Общий event bus и пакет platform не используются.
 
 ## Конфигурация и проверки
 

@@ -20,7 +20,18 @@ Exposed module: catalog/CatalogApp. Props из @microfronts/contracts: apiBaseUr
 
 Для Render используйте render.yaml; для Docker Compose — Dockerfile и nginx.conf (он ожидает сервис backend:3000). vendor и package-lock.json коммитятся, node_modules/dist/.env — нет.
 
-Текущий backend хранит пользователей, сессии и корзины в SQLite. Разные origins имеют разные анонимные ключи корзины. Полная инструкция и отчёт — в integration/README.md и integration/IMPLEMENTATION_REPORT.md общего workspace.
+Текущий backend хранит товары, категории, пользователей, сессии и корзины в PostgreSQL. Разные origins имеют разные анонимные ключи корзины.
+
+## Страницы каталога
+
+- `/catalog` — категории слева, все товары справа. Выбор категории меняет URL на `/catalog?category=peripherals`; «Все товары» сбрасывает фильтр. Обновление страницы и история браузера сохраняют выбор.
+- `/catalog/products/:productId` — описание товара, категория, цена, рейтинг и добавление в корзину. Ссылка из списка переносит query string; «К списку товаров» возвращает выбранный фильтр. Хлебные крошки ведут к категории самого товара.
+
+Catalog использует React Router 7.18.4. Shell монтирует remote по `/catalog/*` и предоставляет общий router через singleton `react-router` в Module Federation; remote не создаёт второй BrowserRouter. Standalone создаёт BrowserRouter сам и перенаправляет `/` на `/catalog`. nginx/Render настроены на прямые ссылки `/catalog` и `/catalog/*`.
+
+Нужен backend с миграцией `20261023000100_add_categories` и API `GET /categories`, `GET /products?category=<slug>`, `GET /products/:id`. Товары включают `categoryId` и `category: { id, name, slug }`; неизвестный товар/категория дают 404, пустая категория — `[]`. Ошибки сети можно повторить. Состояние запросов и отдельные ключи фильтра/товара принадлежат TanStack Query.
+
+Проверки: `npm test`, `npm run typecheck`, `npm run build:local`; `npx playwright install chromium`, затем `npm run test:browser` проверяет собранное standalone-приложение с подменённым API (фильтр, история, прямые ссылки, ошибки, корзина). Настоящую загрузку remote дополнительно проверять в Shell. Порядок выпуска: сначала backend с миграцией, затем Shell с общим router и catalog согласованным комплектом; `CatalogProps` не изменились, но общий router стал требованием интеграции.
 
 Обновляйте backend, Shell и remote согласованным комплектом: новый backend требует X-Requested-With для мутаций, новые remote его отправляют. Новому Shell нужны remote с поддержкой sessionScope. Zustand пока не используется.
 
