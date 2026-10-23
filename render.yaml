@@ -4,6 +4,13 @@ services:
     runtime: static
     buildCommand: npm ci --include=dev && npm run typecheck && npm run build
     staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /catalog
+        destination: /index.html
+      - type: rewrite
+        source: /catalog/*
+        destination: /index.html
     envVars:
       - key: NODE_VERSION
         value: 22.16.0

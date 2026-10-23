@@ -1,0 +1,29 @@
+.catalog-product {
+  display: grid;
+  gap: 18px;
+  max-width: 900px;
+}
+.catalog-product h2,
+.catalog-product p {
+  margin: 0;
+}
+.catalog-product .product-description {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.65;
+}
+.catalog-product dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 20px;
+  margin: 0;
+}
+.catalog-product dd {
+  margin: 0;
+}
+.catalog-product .product-price {
+  font-size: 26px;
+}
+.catalog-product button {
+  justify-self: start;
+}

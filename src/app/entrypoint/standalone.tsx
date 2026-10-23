@@ -2,11 +2,14 @@ import { QueryClient } from "@tanstack/react-query";
 import "../styles/page-reset.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { getCartKey } from "../lib/cart-key";
 import CatalogApp from "../../CatalogApp";
 import "../styles/standalone.css";
 
-const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30000 }, mutations: { retry: false } } });
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false, staleTime: 30000 }, mutations: { retry: false } },
+});
 const root = createRoot(document.getElementById("root")!);
 
 fetch("/runtime-config.json", { cache: "no-store" })
@@ -20,7 +23,22 @@ fetch("/runtime-config.json", { cache: "no-store" })
       <StrictMode>
         <main className="remote-page">
           <p>Standalone catalog · API: {config.apiBaseUrl}</p>
-          <CatalogApp apiBaseUrl={config.apiBaseUrl} cartKey={cartKey} queryClient={queryClient} />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Navigate to="/catalog" replace />} />
+              <Route
+                path="/catalog/*"
+                element={
+                  <CatalogApp
+                    apiBaseUrl={config.apiBaseUrl}
+                    cartKey={cartKey}
+                    queryClient={queryClient}
+                  />
+                }
+              />
+              <Route path="*" element={<Navigate to="/catalog" replace />} />
+            </Routes>
+          </BrowserRouter>
         </main>
       </StrictMode>,
     );
