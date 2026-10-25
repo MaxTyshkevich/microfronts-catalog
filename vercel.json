@@ -1,5 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "**": false,
+      "main": true
+    }
+  },
   "rewrites": [
     { "source": "/catalog", "destination": "/index.html" },
     { "source": "/catalog/:path*", "destination": "/index.html" }

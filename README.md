@@ -24,6 +24,8 @@ Exposed module: catalog/CatalogApp. Props из @microfronts/contracts: apiBaseUr
 
 `vercel.json` направляет `/catalog` и `/catalog/*` на index.html для прямого открытия страниц и перезагрузки. Пути `/api/*`, remoteEntry.js и assets не входят в SPA rewrite.
 
+Автоматические Vercel deployment разрешены только для `main`: production обновляется после слияния PR, Preview для остальных веток отключены через `git.deploymentEnabled`. GitHub CI продолжает проверять каждый push и PR (типы, HTTP/config-тесты, браузерные сценарии и production-сборка). Перед слиянием проверяйте remote локально внутри Shell. Поддержка Vercel URL в конфигурации сохранена для возможного ручного тестового deployment; существующие deployment автоматически не удаляются.
+
 Текущий backend хранит товары, категории, пользователей, сессии и корзины в PostgreSQL. Разные origins имеют разные анонимные ключи корзины.
 
 ## Страницы каталога
