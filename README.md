@@ -20,6 +20,8 @@ Exposed module: catalog/CatalogApp. Props из @microfronts/contracts: apiBaseUr
 
 Для Render используйте render.yaml; для Docker Compose — Dockerfile и nginx.conf (он ожидает сервис backend:3000). vendor и package-lock.json коммитятся, node_modules/dist/.env — нет.
 
+В Vercel production/preview сборка использует `https://<VERCEL_URL>/`, если `VERCEL=1` и не задан `VITE_PUBLIC_BASE`. Системные переменные Vercel должны быть доступны сборке. Явный `VITE_PUBLIC_BASE` имеет приоритет; для других платформ HTTPS-адрес по-прежнему обязателен. API задаётся `VITE_API_BASE_URL` (HTTPS) либо остаётся `/api`. Для `/api` нужен backend или rewrite на том же origin: локальный Vite proxy на Vercel не переносится. В Shell API передаётся через props; standalone использует runtime-config.json текущего deployment.
+
 Текущий backend хранит товары, категории, пользователей, сессии и корзины в PostgreSQL. Разные origins имеют разные анонимные ключи корзины.
 
 ## Страницы каталога
