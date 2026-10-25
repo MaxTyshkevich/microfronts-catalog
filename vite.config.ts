@@ -2,24 +2,15 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { federation } from "@module-federation/vite";
 import { defineConfig, loadEnv, type Plugin } from "vite";
+import { resolveBuildEnvironment } from "./src/app/config/build-environment";
 
 export default defineConfig(({ command, mode }) => {
   const env = { ...loadEnv(mode, ".", ""), ...process.env };
-  const isProduction = command === "build" && mode !== "integration";
-  const origin = env.DEV_PUBLIC_ORIGIN || "http://localhost:5174";
-  const apiBaseUrl = env.VITE_API_BASE_URL || "/api";
+  const { origin, apiBaseUrl, base } = resolveBuildEnvironment(env, command, mode);
   const config = {
     schemaVersion: 1,
     apiBaseUrl,
   };
-  if (isProduction) {
-    if (
-      !env.VITE_PUBLIC_BASE?.startsWith("https://") ||
-      (apiBaseUrl !== "/api" && !apiBaseUrl.startsWith("https://"))
-    ) {
-      throw new Error("Production requires HTTPS VITE_PUBLIC_BASE and /api or HTTPS VITE_API_BASE_URL");
-    }
-  }
   const runtimeConfig: Plugin = {
     name: "microfronts-runtime-config",
     configureServer(server) {
@@ -66,7 +57,7 @@ export default defineConfig(({ command, mode }) => {
         },
       }),
     ],
-    base: command === "serve" ? origin + "/" : env.VITE_PUBLIC_BASE || "http://localhost:4174/",
+    base,
     server: { origin, port: 5174, strictPort: true, cors: { origin: allowedOrigins }, proxy },
     preview: { port: 4174, strictPort: true, cors: { origin: allowedOrigins }, proxy },
     build: { target: ["chrome111", "safari16.4", "firefox128"] },

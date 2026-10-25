@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { Badge, Button } from "@microfronts/ui";
 import type { CatalogProps } from "@microfronts/contracts";
-import { useProducts, type Product } from "../../../entities/product";
+import { useProducts, ProductCard, type Product } from "../../../entities/product";
 import { useCategories } from "../../../entities/category";
 import { HttpError } from "../../../shared/api";
-import { useAddToCart } from "../../../features/add-to-cart";
-import { ProductCard } from "./ProductCard";
+import { useAddToCart, AddToCartButton } from "../../../features/add-to-cart";
 import "./catalog.css";
 import { TestComponent } from "./TestComponent";
 
@@ -72,14 +71,12 @@ export function CatalogPage({
             </div>
           )}
           {(categoriesQuery.data ?? []).map((item) => (
-            <button
+            <Link
               key={item.id}
-              type="button"
-              aria-pressed={category === item.slug}
-              onClick={() => selectCategory(item.slug)}
+              to={"/catalog/category/" + encodeURIComponent(item.slug)}
             >
               {item.name}
-            </button>
+            </Link>
           ))}
         </aside>
         <div className="catalog-results">
@@ -105,8 +102,8 @@ export function CatalogPage({
               <ProductCard
                 key={product.id}
                 product={product}
-                pendingProductId={pendingProductId}
-                onAdd={add}
+                detailsHref={"/catalog/products/" + encodeURIComponent(product.id) + (search.size ? "?" + search.toString() : "")}
+                action={<AddToCartButton product={product} pendingProductId={pendingProductId} onAdd={add} />}
               />
             ))}
           </div>

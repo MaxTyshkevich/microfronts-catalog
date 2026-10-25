@@ -6,7 +6,9 @@ import "./app/styles/tailwind.css";
 export default function CatalogApp(props: CatalogProps) {
   return (
     <CatalogQueryProvider queryClient={props.queryClient}>
-      <CatalogRoutes {...props} />
+      <div className="catalog-ui">
+        <CatalogRoutes {...props} />
+      </div>
     </CatalogQueryProvider>
   );
 }

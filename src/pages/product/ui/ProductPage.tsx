@@ -18,6 +18,11 @@ export function ProductPage({
 }: CatalogProps) {
   const { productId = "" } = useParams();
   const { search } = useLocation();
+  const origin = new URLSearchParams(search);
+  const categoryOrigin = origin.get("from") === "category" ? origin.get("category") : null;
+  const backTo = categoryOrigin
+    ? "/catalog/category/" + encodeURIComponent(categoryOrigin)
+    : "/catalog" + search;
   const context = { apiBaseUrl, cartKey, sessionScope, onUnauthorized };
   const query = useProduct(context, productId);
   const mutation = useAddToCart(context, onCartChanged);
@@ -27,7 +32,7 @@ export function ProductPage({
 
   return (
     <section className="catalog-product" aria-label="Описание товара">
-      <Link to={"/catalog" + search}>← К списку товаров</Link>
+      <Link to={backTo}>← К списку товаров</Link>
       {query.isPending && <p role="status">Загружаем товар…</p>}
       {query.isError && (
         <div role="alert">
@@ -44,7 +49,7 @@ export function ProductPage({
         <>
           <nav aria-label="Путь к товару">
             <Link to="/catalog">Каталог</Link> /{" "}
-            <Link to={"/catalog?category=" + encodeURIComponent(product.category.slug)}>
+            <Link to={"/catalog/category/" + encodeURIComponent(product.category.slug)}>
               {product.category.name}
             </Link>
           </nav>

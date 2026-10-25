@@ -1,6 +1,7 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components, utilities, catalog-utilities;
 
 @import "tailwindcss/theme.css" layer(theme) prefix(catalog);
-@import "tailwindcss/utilities.css" layer(utilities) prefix(catalog) source(none);
+@import "tailwindcss/utilities.css" layer(catalog-utilities) prefix(catalog) source(none);
+@import "../../shared/ui/theme.css";
 
 @source "../../";

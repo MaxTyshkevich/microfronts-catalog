@@ -17,11 +17,16 @@
     "@microfronts/contracts": "file:vendor/microfronts-contracts-0.1.0.tgz",
     "@microfronts/ui": "file:vendor/microfronts-ui-0.2.0-tailwind.0.tgz",
     "@module-federation/vite": "1.21.0",
+    "@radix-ui/react-slot": "^1.5.0",
     "@tanstack/react-query": "5.103.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.61.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-hook-form": "7.87.0",
-    "react-router": "7.18.4"
+    "react-router": "7.18.4",
+    "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",

@@ -55,22 +55,19 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
-test("category filter survives reload and browser back/forward", async ({ page }) => {
+test("category navigation survives reload and browser back/forward", async ({ page }) => {
   await page.goto("/catalog");
   await expect(page.getByRole("link", { name: "Split keyboard" })).toBeVisible();
-  await page.getByRole("button", { name: "Мониторы", exact: true }).click();
-  await expect(page).toHaveURL(/\/catalog\?category=monitors$/);
+  await page.getByRole("link", { name: "Мониторы", exact: true }).click();
+  await expect(page).toHaveURL(/\/catalog\/category\/monitors$/);
   await expect(page.getByRole("link", { name: "Portable monitor" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Split keyboard" })).toHaveCount(0);
   await page.reload();
-  await expect(page.getByRole("button", { name: "Мониторы", exact: true })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  await page.getByRole("button", { name: "Все товары", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Мониторы", exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "Весь каталог", exact: true }).click();
   await expect(page).toHaveURL(/\/catalog$/);
   await page.goBack();
-  await expect(page).toHaveURL(/category=monitors$/);
+  await expect(page).toHaveURL(/\/category\/monitors$/);
   await page.goForward();
   await expect(page.getByRole("link", { name: "Split keyboard" })).toBeVisible();
 });
@@ -101,7 +98,7 @@ test("direct details link and unknown product, category and route", async ({ pag
   await expect(page.getByRole("heading", { name: "Товар не найден" })).toBeVisible();
   await page.goto("/catalog?category=missing");
   await expect(page.getByRole("alert")).toContainText("Категория не найдена");
-  await page.getByRole("button", { name: "Прочее", exact: true }).click();
+  await page.getByRole("link", { name: "Прочее", exact: true }).click();
   await expect(page.getByText("В этой категории пока нет товаров.")).toBeVisible();
   await page.goto("/catalog/unknown/page");
   await expect(page.getByRole("heading", { name: "Страница не найдена" })).toBeVisible();
