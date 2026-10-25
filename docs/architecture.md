@@ -81,6 +81,7 @@ UI и типы интеграции поставляются архивами @m
 Настройки окружения перечислены в [.env.example](../.env.example), команды запуска — в [README](../README.md).
 runtime-config.json формируется инфраструктурой сборки/запуска; секреты в браузерную конфигурацию не помещаются.
 `app/config/build-environment.ts` разрешает origin, base и API для vite.config.ts. При production-сборке приоритет имеет `VITE_PUBLIC_BASE`; на Vercel (`VERCEL=1`) при его отсутствии используется HTTPS-origin текущего `VERCEL_URL`. Для других платформ явный HTTPS-base обязателен. Некорректные/HTTP URL отклоняются; API допускает `/api` или полноценный HTTPS URL. Dev и integration сохраняют локальные defaults и не используют Vercel fallback. `/api` в standalone требует маршрутизации к backend на хостинге; dev proxy не попадает в сборку. Встраиваемый remote получает API от Shell через CatalogProps, независимо от standalone runtime-config.json.
+`vercel.json` задаёт SPA fallback только для `/catalog` и `/catalog/*`. Пути API и статические ресурсы обслуживаются отдельно; ошибка API не подменяется HTML страницы.
 Для локальной проверки кода: npm run typecheck и npm run build:local. npm run build предназначен для production с HTTPS-настройками. CI выполняет установку, проверку типов, HTTP-тесты и production-сборку.
 Интеграционный стенд и E2E находятся в отдельном репозитории integration общего workspace; standalone checkout не должен требовать соседних исходников для установки.
 
