@@ -116,3 +116,70 @@ test("failed product request offers a retry", async ({ page }) => {
   await page.getByRole("button", { name: "Повторить загрузку товара" }).click();
   await expect(page.getByText("Полное описание клавиатуры")).toBeVisible();
 });
+
+test("catalog skeletons, retry and cart feedback", async ({ page }) => {
+  let release!: () => void;
+  const ready = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let failed = true;
+  await page.route("**/api/products", async (route) => {
+    await ready;
+    return route.fulfill(
+      failed ? { status: 503, json: { message: "Каталог недоступен" } } : { json: products },
+    );
+  });
+  await page.goto("/catalog");
+  await expect(page.getByRole("status", { name: "Загружаем каталог", exact: true })).toBeVisible();
+  release();
+  await expect(page.getByRole("alert")).toContainText("Каталог недоступен");
+  failed = false;
+  await page.getByRole("button", { name: "Обновить каталог" }).click();
+  await expect(page.getByText("Товаров: 2")).toBeVisible();
+  await page.getByRole("button", { name: "Добавить Split keyboard", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Добавлено: Split keyboard");
+});
+
+test("catalog and product styles remain usable on mobile and desktop", async ({ page }) => {
+  for (const width of [390, 1280]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/catalog");
+    await expect(page.getByRole("heading", { name: "Товары", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Split keyboard" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Все товары", exact: true })).toHaveCSS(
+      "color",
+      "rgb(250, 250, 250)",
+    );
+    await expect(
+      page.getByRole("button", { name: "Добавить Split keyboard", exact: true }),
+    ).toHaveCSS("background-color", "rgb(24, 24, 27)");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
+    await page.screenshot({ path: "test-results/catalog-" + width + ".png", fullPage: true });
+    await page.getByRole("link", { name: "Split keyboard" }).click();
+    await expect(page.getByRole("heading", { name: "О товаре", exact: true })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Добавить Split keyboard", exact: true }),
+    ).toHaveCSS("color", "rgb(250, 250, 250)");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
+    await page.screenshot({ path: "test-results/product-" + width + ".png", fullPage: true });
+  }
+});
+
+test("product loading has an accessible skeleton", async ({ page }) => {
+  let release!: () => void;
+  const ready = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/api/products/keyboard", async (route) => {
+    await ready;
+    await route.fulfill({ json: products[0] });
+  });
+  await page.goto("/catalog/products/keyboard");
+  await expect(page.getByRole("status", { name: "Загружаем товар", exact: true })).toBeVisible();
+  release();
+  await expect(page.getByRole("heading", { name: "Split keyboard", exact: true })).toBeVisible();
+});

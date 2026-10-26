@@ -42,9 +42,9 @@ Catalog использует React Router 7.18.4. Shell монтирует remot
 
 ## Локальные компоненты shadcn/ui
 
-Новый экран и карточки товаров используют исходники shadcn/ui, адаптированные в `src/shared/ui` (Button с Radix Slot, Card, Skeleton). Они принадлежат catalog; общую UI-библиотеку для этой задачи обновлять не нужно. Варианты кнопки задаются через class-variance-authority, классы объединяются clsx и tailwind-merge с префиксом `catalog`, иконки — lucide-react. Источник компонентов: [shadcn/ui](https://ui.shadcn.com/docs/components).
+Страницы списка, категории, отдельного товара и карточки товаров используют исходники shadcn/ui, адаптированные в `src/shared/ui` (Button с Radix Slot, Card, Skeleton). Они принадлежат catalog; общую UI-библиотеку для этой задачи обновлять не нужно. Варианты кнопки задаются через class-variance-authority, классы объединяются clsx и tailwind-merge с префиксом `catalog`, иконки — lucide-react. Источник компонентов: [shadcn/ui](https://ui.shadcn.com/docs/components).
 
-Токены темы ограничены `.catalog-ui`, общего провайдера или глобального reset для новых компонентов нет. Повторяющиеся примитивы можно позднее перенести в общий UI-пакет. Старые экраны пока сохраняют часть компонентов `@microfronts/ui`; полная миграция не выполнялась.
+Токены темы ограничены `.catalog-ui`, общего провайдера или глобального reset для новых компонентов нет. Повторяющиеся примитивы можно позднее перенести в общий UI-пакет. Страницы каталога больше не импортируют компоненты `@microfronts/ui`: пакет сохранён для standalone reset. Список содержит адаптивную сетку и боковую панель категорий, страница товара — описание, характеристики и блок покупки. Загрузка показана Skeleton, ошибки и пустые результаты — Card. Экспериментальный TestComponent не выводится в каталоге; его исходники сохранены.
 
 Обновляйте backend, Shell и remote согласованным комплектом: новый backend требует X-Requested-With для мутаций, новые remote его отправляют. Новому Shell нужны remote с поддержкой sessionScope. Zustand пока не используется.
 
@@ -54,7 +54,7 @@ Tailwind 4 и @tailwindcss/vite установлены как devDependencies: �
 
 Файл src/app/styles/tailwind.css сканирует только собственный src и использует префикс `catalog:`: например, `catalog:flex`, `catalog:hover:bg-blue-600`. Записывайте классы целиком, не собирайте имена интерполяцией. Исходники соседей и UI-пакета не сканируются.
 
-Exposed-компонент импортирует Tailwind, а страница — свой catalog.css, поэтому стили доступны и внутри Shell. Reset @microfronts/ui/reset.css импортируется только в app/entrypoint/standalone.tsx для standalone и не входит в граф exposed-модуля. Глобальные стили страницы остаются в standalone.css.
+Exposed-компонент импортирует Tailwind и локальную тему shadcn/ui, поэтому стили доступны и внутри Shell. Страницы списка, категории и товара используют Tailwind utilities с префиксом `catalog:` без отдельных CSS-файлов страниц. Reset @microfronts/ui/reset.css импортируется только в app/entrypoint/standalone.tsx для standalone и не входит в граф exposed-модуля. Глобальные стили страницы остаются в standalone.css.
 
 UI-пакет 0.2.0-tailwind.0 из vendor автоматически поставляет готовые стили компонентов без Preflight и глобальных правил base. Его reset.css содержит Preflight и базовые правила темы. Catalog объявляет слои `theme, base, components, utilities, catalog-utilities`; собственные utilities помещаются в `catalog-utilities`. Отдельный слой гарантирует приоритет над `base`, даже если CSS UI-пакета уже зарегистрировал `utilities` до загрузки standalone reset. Префиксы не изолируют произвольный CSS: ручные правила ограничивайте корнем remote или CSS Modules. Оставшиеся правила без слоя имеют приоритет над utilities; при миграции удаляйте заменённые декларации.
 

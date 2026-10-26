@@ -7,7 +7,7 @@ Catalog показывает товары и позволяет добавлят
 - src/main.tsx — тонкая standalone-точка входа, вызывающая src/app/entrypoint/standalone.tsx.
 - src/CatalogApp.tsx — публичный модуль Module Federation: QueryClientProvider и внутренние маршруты.
 - src/app — standalone bootstrap, провайдер QueryClient, гостевой ключ и общие стили.
-- src/pages/catalog — композиция общего списка, локальное сообщение и стили страницы.
+- src/pages/catalog — композиция общего списка, панель категорий и локальное сообщение; оформление через shadcn/ui и Tailwind.
 - src/pages/category — описание категории, рекомендации, сетка товаров и состояния загрузки/ошибок.
 - src/pages/product — полное описание товара, рейтинг, добавление в корзину и возврат к фильтру.
 - src/entities/category — получение категорий и локальные описания по slug с общим текстом для новых категорий.
@@ -72,7 +72,7 @@ Host может передать общий QueryClient; standalone создаё
 React 19, TypeScript, Vite и Module Federation. Серверное состояние управляется TanStack Query.
 UI и типы интеграции поставляются архивами @microfronts/ui и @microfronts/contracts в vendor; архивы и package-lock.json хранятся в Git. Типы CatalogProps используются напрямую из contracts. Изменения контракта требуют согласованного обновления потребителей.
 
-Страница категории, карточки товаров и кнопка корзины используют локальные компоненты shadcn/ui из shared/ui. Button использует Radix Slot и class-variance-authority; cn объединяет clsx и tailwind-merge с префиксом catalog; иконки поставляет lucide-react. Компоненты адаптированы из [shadcn/ui](https://ui.shadcn.com/docs/components) под FSD и изоляцию remote. Они пока не публикуются через общий UI-пакет. Описания категорий хранятся в entities/category/model/category-content.ts, пока API предоставляет только id/name/slug. Для нового slug, существующего в API, предусмотрен общий текст; локальный текст сам по себе не создаёт категорию. Контракты backend и CatalogProps не менялись.
+Страницы списка, категории и отдельного товара, карточки товаров и кнопка корзины используют локальные компоненты shadcn/ui из shared/ui. Button использует Radix Slot и class-variance-authority; cn объединяет clsx и tailwind-merge с префиксом catalog; иконки поставляет lucide-react. Компоненты адаптированы из [shadcn/ui](https://ui.shadcn.com/docs/components) под FSD и изоляцию remote. Они пока не публикуются через общий UI-пакет. Описания категорий хранятся в entities/category/model/category-content.ts, пока API предоставляет только id/name/slug. Для нового slug, существующего в API, предусмотрен общий текст; локальный текст сам по себе не создаёт категорию. Контракты backend и CatalogProps не менялись.
 
 Связь host и remote: прежние props apiBaseUrl, cartKey, queryClient, sessionScope и callbacks onUnauthorized/onNavigate, а также общий контекст singleton React Router. Shell владеет верхними маршрутами и общим QueryClient, catalog — внутренними маршрутами и запросами. Исходники соседних приложений не импортируются. Backend сначала выпускается с API категорий и товара по ID, затем Shell и catalog обновляются согласованно. Общий event bus и пакет platform не используются.
 
@@ -97,7 +97,7 @@ Tailwind 4 и @tailwindcss/vite установлены как devDependencies: �
 
 Файл src/app/styles/page-reset.css подключает reset UI-пакета и импортируется только из app/entrypoint/standalone.tsx. Файл src/app/styles/tailwind.css сканирует только собственный src и использует префикс `catalog:`: например, `catalog:flex`, `catalog:hover:bg-blue-600`. Записывайте классы целиком, не собирайте имена интерполяцией. Исходники соседей и UI-пакета не сканируются.
 
-Exposed-компонент импортирует Tailwind, а страница — свой catalog.css, поэтому стили доступны и внутри Shell. Reset @microfronts/ui/reset.css импортируется только в app/entrypoint/standalone.tsx для standalone и не входит в граф exposed-модуля. Глобальные стили страницы остаются в standalone.css.
+Exposed-компонент импортирует Tailwind и локальную тему shadcn/ui, поэтому стили доступны и внутри Shell. Страницы списка, категории и товара используют Tailwind utilities с префиксом `catalog:` без отдельных CSS-файлов страниц. Reset @microfronts/ui/reset.css импортируется только в app/entrypoint/standalone.tsx для standalone и не входит в граф exposed-модуля. Глобальные стили страницы остаются в standalone.css.
 
 UI-пакет 0.2.0-tailwind.0 из vendor автоматически поставляет готовые стили компонентов без Preflight и глобальных правил base. Его reset.css содержит Preflight и базовые правила темы. Catalog объявляет слои `theme, base, components, utilities, catalog-utilities`, собственные utilities находятся в `catalog-utilities`. Это сохраняет их приоритет над base при любом порядке загрузки remote и standalone reset: старый UI CSS может зарегистрировать utilities раньше base. Токены shadcn/ui ограничены `.catalog-ui`; новый reset не добавляется. Префиксы не изолируют произвольный CSS: ручные правила ограничивайте корнем remote или CSS Modules. Оставшиеся правила без слоя имеют приоритет над utilities; при миграции удаляйте заменённые декларации.
 
