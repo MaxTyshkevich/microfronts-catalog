@@ -12,8 +12,11 @@ Catalog показывает товары и позволяет добавлят
 - src/pages/product — полное описание товара, рейтинг, добавление в корзину и возврат к фильтру.
 - src/entities/category — получение категорий и локальные описания по slug с общим текстом для новых категорий.
 - src/features/add-to-cart — запрос POST /cart/items, мутация, инвалидация корзины и кнопка.
+- src/features/create-product — кнопка администратора, модальная форма React Hook Form и POST /products. После создания инвалидируются все списки товаров текущего API, включая фильтры.
+- src/entities/session — собственный запрос GET /auth/me с cookies, ответ `{ user: { id, name, email, role } | null }` и ключ sessionKey из contracts. Запрос работает через текущий QueryClient; в Shell он отделён от внешнего кеша сессии самого Shell. Данные актуальны 30 секунд, обновляются при возвращении фокуса, если устарели; клиентские данные не дают серверных прав.
 - src/entities/product — тип Product, GET /products, параметры useQuery и карточка товара. Карточка принимает URL и action-слот; feature корзины передаётся страницей без зависимости entity от features.
 - src/shared/ui — локальные примитивы shadcn/ui (Button, Card, Skeleton) и тема, ограниченная `.catalog-ui`.
+- Dialog на Radix, Input и Textarea дополняют локальные shadcn/ui-примитивы. Portal модального окна получает `.catalog-ui`, чтобы сохранить токены темы вне корня remote. Radix управляет фокусом, Escape и возвратом фокуса на кнопку.
 - src/shared/api — HTTP-клиент без бизнес-запросов; src/shared/lib — форматирование денег.
 
 В host используется переданный QueryClient. Базовый ключ списка и ключ корзины поставляются contracts; фильтр расширяет ключ списка объектом `{ category }`, товар использует отдельный ключ `["product", apiBaseUrl, id]`, категории — `["categories", apiBaseUrl]`. После добавления инвалидируется корзина текущего контекста. Поддерживается callback onCartChanged. Переходы внутри каталога используют общий React Router, переход в корзину — callback onNavigate.
@@ -21,7 +24,7 @@ Catalog показывает товары и позволяет добавлят
 `app/routes/catalog-routes.tsx` содержит index со списком, `category/:slug` с описанием категории и `products/:productId` с описанием товара; неизвестный подпуть показывает локальную страницу 404. Старый query-параметр `category` сохраняет фильтр списка. Страница категории получает метаданные из существующего `GET /categories`, а товары — из `GET /products?category=<slug>`; отдельного endpoint категории не требуется. Ссылка на товар передаёт `?category=<slug>&from=category` для возврата на страницу категории после перезагрузки. Хлебные крошки товара ведут к его категории. Неизвестный slug отличается от существующей категории без товаров; ошибки категорий и товаров можно повторить независимо.
 
 В host Shell владеет BrowserRouter и маршрутом `/catalog/*`; обе сборки разделяют singleton `react-router` 7.18.4. Standalone создаёт BrowserRouter и монтирует то же дерево по `/catalog/*`, `/` перенаправляет в каталог. Прямые ссылки обслуживаются SPA fallback для `/catalog` и `/catalog/*`.
-Standalone работает без Shell; без sessionScope HTTP helper не отправляет cookies. Ошибки 401/410 передаются через onUnauthorized, когда callback задан. createRoot вызывается только standalone-точкой входа.
+Standalone работает без Shell; без sessionScope обычные гостевые запросы не отправляют cookies. Запросы /auth/me и создания товара явно используют credentials: include. Для создания отправляется X-Session-User: ожидаемый пользователь Shell либо пользователь из /auth/me в standalone. Cookie должна подходить адресу API; наличие входа на другом домене этого не гарантирует. Ошибки 401/410 передаются через onUnauthorized, когда callback задан; после 401/403 создания обновляется локальная сессия. При 403 вход не сбрасывается. createRoot вызывается только standalone-точкой входа.
 
 ## FSD
 

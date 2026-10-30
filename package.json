@@ -17,6 +17,7 @@
     "@microfronts/contracts": "file:vendor/microfronts-contracts-0.1.0.tgz",
     "@microfronts/ui": "file:vendor/microfronts-ui-0.2.0-tailwind.0.tgz",
     "@module-federation/vite": "1.21.0",
+    "@radix-ui/react-dialog": "^1.3.1",
     "@radix-ui/react-slot": "^1.5.0",
     "@tanstack/react-query": "5.103.1",
     "class-variance-authority": "^0.7.1",
