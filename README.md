@@ -2,7 +2,7 @@
 
 Архитектура, структура FSD и правила размещения новых запросов и состояния: [docs/architecture.md](docs/architecture.md). Процесс выполнения задач: [AGENTS.md](AGENTS.md).
 
-Импорты: `@/` указывает на собственный `src`; между слайсами использовать публичный API, внутри слайса — прямой относительный путь. Проверки: `npm run lint` (включая границы FSD), `npm run test:lint` (тесты правил). `npm run check:architecture` — совместимый псевдоним lint. Подробности и исключения описаны в [архитектуре](docs/architecture.md#импорты-и-eslint).
+Импорты: `@/` указывает на собственный `src`; между слайсами использовать публичный API, внутри слайса — прямой относительный путь. Проверки: `npm run lint` (границы FSD через eslint-plugin-boundaries), `npm run test:lint` (10 проверок конфигурации ESLint). `npm run check:architecture` — совместимый псевдоним lint. Подробности и исключения описаны в [архитектуре](docs/architecture.md#импорты-и-eslint).
 
 Отдельный Git-репозиторий React 19 + Vite + Module Federation. Установка не требует соседних исходников: готовый UI находится в vendor. Связь микрофронтов — через props, навигационные callbacks и общий TanStack QueryClient; пакет platform не требуется. Контракт поставляется архивом @microfronts/contracts в vendor.
 
