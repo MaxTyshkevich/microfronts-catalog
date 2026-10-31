@@ -5,7 +5,7 @@
 Catalog показывает товары и позволяет добавлять их в корзину. Работает standalone и как catalog/CatalogApp внутри Shell.
 
 - src/main.tsx — тонкая standalone-точка входа, вызывающая src/app/entrypoint/standalone.tsx.
-- src/CatalogApp.tsx — публичный модуль Module Federation: QueryClientProvider и внутренние маршруты.
+- src/CatalogApp.tsx — тонкий публичный адаптер Module Federation; реэкспортирует app/ui/catalog-app.tsx с QueryClientProvider и внутренними маршрутами.
 - src/app — standalone bootstrap, провайдер QueryClient, гостевой ключ и общие стили.
 - src/pages/catalog — композиция общего списка, панель категорий и локальное сообщение; оформление через shadcn/ui и Tailwind.
 - src/pages/category — описание категории, рекомендации, сетка товаров и состояния загрузки/ошибок.
@@ -105,3 +105,17 @@ Exposed-компонент импортирует Tailwind и локальную
 UI-пакет 0.2.0-tailwind.0 из vendor автоматически поставляет готовые стили компонентов без Preflight и глобальных правил base. Его reset.css содержит Preflight и базовые правила темы. Catalog объявляет слои `theme, base, components, utilities, catalog-utilities`, собственные utilities находятся в `catalog-utilities`. Это сохраняет их приоритет над base при любом порядке загрузки remote и standalone reset: старый UI CSS может зарегистрировать utilities раньше base. Токены shadcn/ui ограничены `.catalog-ui`; новый reset не добавляется. Префиксы не изолируют произвольный CSS: ручные правила ограничивайте корнем remote или CSS Modules. Оставшиеся правила без слоя имеют приоритет над utilities; при миграции удаляйте заменённые декларации.
 
 Порядок выпуска: сначала Shell с явным reset, затем remote с CSS без reset. Архивы vendor и lock-файлы обновляются вместе; зависимости на соседние checkout не добавляются.
+
+## Импорты и ESLint
+
+Алиас `@/` ведёт только в собственный `src/`. Он согласован в `tsconfig.json` (paths) и `vite.config.ts` (resolve.alias); Playwright использует конфигурацию проекта и Vite. Зависимости соседних checkout через алиасы не подключаются.
+
+- Между слайсами и слоями: `import { Product } from "@/entities/product"`; внешний потребитель использует только публичный `index.ts` слайса, без глубокого пути и явного `/index`.
+- Внутри слайса: прямой относительный путь, например `../model/product`; собственный публичный `index.ts` импортировать нельзя. Реэкспорты из `index.ts` используют относительные пути.
+- `app` не имеет слайсов: внутри него разрешены прямые относительные импорты между сегментами. `shared` разделён на сегменты: внутри сегмента пути относительные, между сегментами — через `@/`. Глубокие пути в `shared` разрешены; общий barrel всего слоя не создаётся.
+- Зависимости направлены вниз: app → pages → widgets → features → entities → shared. Слайсы одного слоя изолированы. Между сегментами shared разрешены зависимости; локальные исходники за пределами src запрещены. Исключения `@x` сейчас не настроены.
+- Правило распространяется на статические импорты, `import type`, реэкспорты, `import()`, TypeScript import types и `require`. Вычисляемые module specifiers запрещены. Строки URL, пути Federation exposes, конфигурация сборщика, CSS `@import`/`@source` и `new URL(..., import.meta.url)` не являются импортами модулей и не переписываются; CSS-импорты из TS проверяются.
+
+`eslint.config.mjs` подключает локальное правило `scripts/eslint/fsd.mjs` с TypeScript parser/resolver. Оно проверяет структуру исходников, разрешение путей, алиасы, направление зависимостей, публичные API и запрет импорта собственного index.ts. `npm run lint` запускается с нулевым допуском предупреждений; `npm run check:architecture` вызывает ту же проверку. `npm run test:lint` проверяет разрешённые и запрещённые случаи на изолированных файловых примерах. Обе проверки обязательны в CI до typecheck и сборки. TypeScript проверяет типы, Vite — сборку; lint их не заменяет.
+
+Технические входы `src/main.tsx` и `src/CatalogApp.tsx` могут импортировать только `app`. Standalone использует компонент из `app/ui/catalog-app.tsx` напрямую и не зависит от корневого Federation-адаптера.

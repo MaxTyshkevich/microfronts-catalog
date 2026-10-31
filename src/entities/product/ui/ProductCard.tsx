@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { ArrowUpRight } from "lucide-react";
 import type { Product } from "../model/product";
-import { formatMoney } from "../../../shared/lib";
-import { Card, CardContent, CardHeader } from "../../../shared/ui";
+import { formatMoney } from "@/shared/lib";
+import { Card, CardContent, CardHeader } from "@/shared/ui";
 
 interface Props {
   product: Product;

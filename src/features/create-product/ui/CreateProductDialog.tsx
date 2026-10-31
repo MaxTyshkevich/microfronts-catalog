@@ -3,9 +3,9 @@ import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { productsKey, sessionKey } from "@microfronts/contracts";
 import { Plus } from "lucide-react";
-import { useSession } from "../../../entities/session";
-import { useCategories } from "../../../entities/category";
-import { HttpError, type RequestContext } from "../../../shared/api";
+import { useSession } from "@/entities/session";
+import { useCategories } from "@/entities/category";
+import { HttpError, type RequestContext } from "@/shared/api";
 import {
   Button,
   Dialog,
@@ -16,7 +16,7 @@ import {
   Input,
   Textarea,
   fieldClassName,
-} from "../../../shared/ui";
+} from "@/shared/ui";
 import { createProduct } from "../api/create-product";
 
 interface Fields {

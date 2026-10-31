@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { request, type RequestContext } from "../../../shared/api";
+import { request, type RequestContext } from "@/shared/api";
 
 export interface Category {
   id: string;
