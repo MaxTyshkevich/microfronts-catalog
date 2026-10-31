@@ -38,7 +38,7 @@ export async function request<T>(
   try {
     const response = await fetch(apiBaseUrl.replace(/\/$/, "") + path, {
       ...options,
-      credentials: sessionScope ? "include" : "omit",
+      credentials: options.credentials ?? (sessionScope ? "include" : "omit"),
       signal: controller.signal,
       headers,
     });

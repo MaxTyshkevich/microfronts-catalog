@@ -7,6 +7,7 @@ import { useCategories } from "../../../entities/category";
 import { HttpError } from "../../../shared/api";
 import { Button, Card, CardContent, CardHeader, Skeleton } from "../../../shared/ui";
 import { useAddToCart, AddToCartButton } from "../../../features/add-to-cart";
+import { CreateProductDialog } from "../../../features/create-product";
 
 export function CatalogPage({
   apiBaseUrl,
@@ -54,6 +55,7 @@ export function CatalogPage({
         <p className="catalog:m-0 catalog:max-w-xl catalog:text-muted-foreground catalog:leading-relaxed">
           Всё для удобной работы. Выберите категорию или посмотрите весь каталог.
         </p>
+        <CreateProductDialog context={context} />
       </header>
       <div className="catalog:grid catalog:items-start catalog:gap-6 catalog:md:grid-cols-[190px_minmax(0,1fr)]">
         <Card>

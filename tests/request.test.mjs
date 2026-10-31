@@ -53,3 +53,18 @@ test('request forwards cancellation to fetch', async (t) => {
   };
   await assert.rejects(request({ apiBaseUrl: '/api', cartKey: 'guest-key' }, '/products', { signal: controller.signal }), { name: 'AbortError' });
 });
+
+test('request can explicitly include session cookies without a host sessionScope', async (t) => {
+  const previousFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = previousFetch; });
+  globalThis.fetch = async (url, options) => {
+    assert.equal(url, '/api/auth/me');
+    assert.equal(options.credentials, 'include');
+    assert.equal(options.headers.has('X-Session-User'), false);
+    return Response.json({ user: null });
+  };
+  assert.deepEqual(
+    await request({ apiBaseUrl: '/api', cartKey: 'guest-key' }, '/auth/me', { credentials: 'include' }),
+    { user: null },
+  );
+});
