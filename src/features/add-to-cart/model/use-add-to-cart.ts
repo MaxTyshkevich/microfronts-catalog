@@ -1,7 +1,7 @@
 import { cartKey as sharedCartKey } from "@microfronts/contracts";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Product } from "../../../entities/product";
-import type { RequestContext } from "../../../shared/api";
+import type { Product } from "@/entities/product";
+import type { RequestContext } from "@/shared/api";
 import { addProduct } from "../api/add-product";
 
 export function useAddToCart(context: RequestContext, onCartChanged?: () => void) {

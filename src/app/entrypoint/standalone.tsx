@@ -4,7 +4,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { getCartKey } from "../lib/cart-key";
-import CatalogApp from "../../CatalogApp";
+import CatalogApp from "../ui/catalog-app";
 import "../styles/standalone.css";
 
 const queryClient = new QueryClient({

@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { ArrowLeft, ArrowRight, ChevronRight, Check } from "lucide-react";
 import type { CatalogProps } from "@microfronts/contracts";
-import { getCategoryContent, useCategories } from "../../../entities/category";
-import { ProductCard, useProducts, type Product } from "../../../entities/product";
-import { AddToCartButton, useAddToCart } from "../../../features/add-to-cart";
-import { Button, Card, CardContent, CardHeader, Skeleton } from "../../../shared/ui";
-import { HttpError } from "../../../shared/api";
+import { getCategoryContent, useCategories } from "@/entities/category";
+import { ProductCard, useProducts, type Product } from "@/entities/product";
+import { AddToCartButton, useAddToCart } from "@/features/add-to-cart";
+import { Button, Card, CardContent, CardHeader, Skeleton } from "@/shared/ui";
+import { HttpError } from "@/shared/api";
 
 export function CategoryPage(props: CatalogProps) {
   const { slug = "" } = useParams();

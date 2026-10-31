@@ -1,4 +1,4 @@
-import { request, type RequestContext } from "../../../shared/api";
+import { request, type RequestContext } from "@/shared/api";
 
 export function addProduct(context: RequestContext, productId: string) {
   return request<unknown>(context, "/cart/items", {

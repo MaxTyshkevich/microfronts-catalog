@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react";
-import { cn } from "../lib";
+import { cn } from "@/shared/lib";
 
 export function Skeleton({ className, ...props }: ComponentProps<"div">) {
   return (

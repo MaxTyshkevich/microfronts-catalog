@@ -1,6 +1,6 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { sessionKey } from "@microfronts/contracts";
-import { request, type RequestContext } from "../../../shared/api";
+import { request, type RequestContext } from "@/shared/api";
 
 export interface Session {
   user: { id: string; name: string; email: string; role: "USER" | "ADMIN" } | null;
