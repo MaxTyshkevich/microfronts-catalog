@@ -1,6 +1,6 @@
 // Adapted from shadcn/ui (new-york), with the catalog Tailwind prefix.
 import type { ComponentProps } from "react";
-import { cn } from "../lib";
+import { cn } from "@/shared/lib";
 
 export function Card({ className, ...props }: ComponentProps<"div">) {
   return (

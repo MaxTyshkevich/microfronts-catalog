@@ -1,5 +1,5 @@
-import { Button } from "../../../shared/ui";
-import type { Product } from "../../../entities/product";
+import { Button } from "@/shared/ui";
+import type { Product } from "@/entities/product";
 
 interface Props {
   product: Product;

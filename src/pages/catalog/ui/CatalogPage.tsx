@@ -2,12 +2,12 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { ArrowRight, Check, LayoutGrid, PackageSearch } from "lucide-react";
 import type { CatalogProps } from "@microfronts/contracts";
-import { useProducts, ProductCard, type Product } from "../../../entities/product";
-import { useCategories } from "../../../entities/category";
-import { HttpError } from "../../../shared/api";
-import { Button, Card, CardContent, CardHeader, Skeleton } from "../../../shared/ui";
-import { useAddToCart, AddToCartButton } from "../../../features/add-to-cart";
-import { CreateProductDialog } from "../../../features/create-product";
+import { useProducts, ProductCard, type Product } from "@/entities/product";
+import { useCategories } from "@/entities/category";
+import { HttpError } from "@/shared/api";
+import { Button, Card, CardContent, CardHeader, Skeleton } from "@/shared/ui";
+import { useAddToCart, AddToCartButton } from "@/features/add-to-cart";
+import { CreateProductDialog } from "@/features/create-product";
 
 export function CatalogPage({
   apiBaseUrl,

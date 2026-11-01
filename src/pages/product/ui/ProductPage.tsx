@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Link, useLocation, useParams } from "react-router";
 import { ArrowRight, Check, ChevronRight, Star } from "lucide-react";
 import type { CatalogProps } from "@microfronts/contracts";
-import { useProduct } from "../../../entities/product";
-import { useAddToCart, AddToCartButton } from "../../../features/add-to-cart";
-import { HttpError } from "../../../shared/api";
-import { formatMoney } from "../../../shared/lib";
-import { Button, Card, CardContent, CardHeader, Skeleton } from "../../../shared/ui";
+import { useProduct } from "@/entities/product";
+import { useAddToCart, AddToCartButton } from "@/features/add-to-cart";
+import { HttpError } from "@/shared/api";
+import { formatMoney } from "@/shared/lib";
+import { Button, Card, CardContent, CardHeader, Skeleton } from "@/shared/ui";
 
 export function ProductPage(props: CatalogProps) {
   const { productId = "" } = useParams();

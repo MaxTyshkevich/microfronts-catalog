@@ -1,5 +1,5 @@
-import { request, type RequestContext } from "../../../shared/api";
-import type { Product } from "../../../entities/product";
+import { request, type RequestContext } from "@/shared/api";
+import type { Product } from "@/entities/product";
 
 export interface CreateProduct {
   id: string;

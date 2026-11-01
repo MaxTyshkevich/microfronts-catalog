@@ -1,6 +1,6 @@
 import { productsKey } from "@microfronts/contracts";
 import { queryOptions } from "@tanstack/react-query";
-import { request, type RequestContext } from "../../../shared/api";
+import { request, type RequestContext } from "@/shared/api";
 import type { Product } from "../model/product";
 
 export function productsQueryOptions(context: RequestContext, category?: string) {

@@ -1,1 +1,1 @@
-import "./app/entrypoint/standalone";
+import "@/app/entrypoint/standalone";
